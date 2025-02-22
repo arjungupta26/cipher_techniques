@@ -2,12 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-const encryptions = require("./backend"); 
+const encryptions = require("./backend");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-
-
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -17,8 +15,9 @@ app.post("/encrypt", (req, res) => {
     const { text, type, shift, key, keyMatrix, a, b } = req.body;
 
     if (!text) return res.status(400).json({ error: "Text is required" });
-
-    if (!encryptions[type]) return res.status(400).json({ error: "Invalid encryption type" });
+    if (typeof encryptions[type] !== "function") {
+        return res.status(400).json({ error: `Encryption type '${type}' is not supported.` });
+    }
 
     let encryptedText;
 
@@ -50,12 +49,16 @@ app.post("/encrypt", (req, res) => {
 
         try {
             let parsedMatrix = keyMatrix
-                .split(";") // Split rows by ";"
-                .map(row => row.split(",").map(Number)); 
+                .trim()
+                .split(";")
+                .map(row => row.split(",").map(num => {
+                    if (isNaN(num)) throw new Error("Invalid matrix input.");
+                    return Number(num);
+                }));
 
             encryptedText = encryptions.hill(text, parsedMatrix);
         } catch (error) {
-            return res.status(400).json({ error: "Invalid key matrix format." });
+            return res.status(400).json({ error: "Invalid key matrix format. Use numbers separated by commas & semicolons." });
         }
     } 
     else if (type === "affine") {
@@ -77,4 +80,4 @@ app.post("/encrypt", (req, res) => {
     res.json({ encrypted: encryptedText });
 });
 
-app.listen(PORT, () => console.log(`✅ Server running at: http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running at: http://localhost:${PORT} OR Render-assigned URL`));
