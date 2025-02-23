@@ -1,13 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+app.use(cors());
 const path = require("path");
 const encryptions = require("./backend");
-
 const app = express();
 const PORT = process.env.PORT || 8080;
-
-app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "frontend")));
 
