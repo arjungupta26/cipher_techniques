@@ -73,7 +73,7 @@ function encryptText() {
         requestData.b = b;
     }
 
-    fetch("http://localhost:8080/encrypt", {
+    fetch("https://your-backend.onrender.com/encrypt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData)
